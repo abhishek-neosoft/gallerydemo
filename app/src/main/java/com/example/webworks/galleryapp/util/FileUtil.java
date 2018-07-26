@@ -1,57 +1,79 @@
 package com.example.webworks.galleryapp.util;
 
 import android.os.Environment;
-
+import android.util.Log;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.nio.channels.FileChannel;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 
 public class FileUtil {
 
     public ArrayList arrImage = new ArrayList();
     File file;
-    public ArrayList<String> getFilesFromDir(String folderName){
+    String picturePath;
+    String folderName;
 
-        file= new File(Environment.getExternalStorageDirectory() + "/"+folderName);
-        if (file.isDirectory())
-        {
+    public ArrayList<String> getFilesFromDir(String folderName) {
+        this.folderName=folderName;
+        file = new File(Environment.getExternalStorageDirectory() + "/" + folderName);
+        Log.i("filename", String.valueOf(file));
+        if (file.isDirectory()) {
             File[] dirFile = file.listFiles();
-            for (int i=0;i<dirFile.length;i++)
-            {
+            for (int i = 0; i < dirFile.length; i++) {
                 arrImage.add(dirFile[i].toString());
             }
         }
         return arrImage;
     }
 
-    public Boolean deletFiles(String path){
-        File files=new File(path);
-        /*if (files.exists())
-        {
-            return files.delete();
-        }*/
+    public boolean deletFiles() {
+        File files = new File(picturePath);
+        if (files.exists()) {
+            files.delete();
+            return true;
+        }
         return false;
     }
-    private void copyFile(File sourceFile, File destFile) throws IOException {
-        if (!sourceFile.exists()) {
-            return;
-        }
 
-        FileChannel source = null;
-        source = new FileInputStream(sourceFile).getChannel();
-        FileChannel destination = new FileOutputStream(destFile).getChannel();
-        if (destination != null && source != null) {
-            destination.transferFrom(source, 0, source.size());
+    public boolean copyFile(String picturePath, String lastName) {//sourcefile=moveFile
+        this.picturePath=picturePath;
+        InputStream in = null;
+        OutputStream out = null;
+
+        try {
+            in = new FileInputStream(picturePath);
+            out = new FileOutputStream(this.file + "/" + lastName);
+            String newPath = this.file + "/" + lastName;
+            arrImage.add(newPath);
+            byte[] buffer = new byte[1024];
+            int read;
+            while ((read = in.read(buffer)) != -1) {
+                out.write(buffer, 0, read);
+            }
+            out.flush();
+            out.close();
+            return true;
+
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-        if (source != null) {
-            source.close();
-        }
-        if (destination != null) {
-            destination.close();
-        }
+        return false;
     }
 
+    public boolean hideCurrentFolder(){
+
+        File hideFile = new File(Environment.getExternalStorageDirectory() + "/"+ "."+folderName);
+        boolean sucess = this.file.renameTo(hideFile);
+        if (sucess){
+            return true;
+        }
+        return false;
+    }
 }

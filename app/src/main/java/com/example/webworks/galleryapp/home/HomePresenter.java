@@ -18,16 +18,25 @@ public class HomePresenter {
        fileUtil= new FileUtil();
        this.mView=mView;
    }
-
    public void getFileFromFolder(String folderName){
        mView.setImagesToAdapert(fileUtil.getFilesFromDir(folderName));
    }
+    public void copyAndDeleteFiles(String picturePath,String lastName) {
+       if (fileUtil.copyFile(picturePath,lastName)&& fileUtil.deletFiles())
+       {
+           if (fileUtil.hideCurrentFolder())
+           {
+               mView.addedFiles();
+           }
+           else
+           {
+               mView.failedToaddedFiles();
+           }
 
-    public void add(String picturePath) {
-       fileUtil.arrImage.add(picturePath);
+       }
+       else {
+        mView.failedToaddedFiles();
+       }
     }
 
-    public void copyFile(String picturePath,String folderName) throws IOException {
-       fileUtil.copyFile(new File(picturePath),new File(folderName));
-    }
 }

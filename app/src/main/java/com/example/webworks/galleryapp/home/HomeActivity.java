@@ -18,9 +18,11 @@ import android.widget.Toast;
 
 import com.example.webworks.galleryapp.R;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
@@ -33,6 +35,8 @@ public class HomeActivity extends AppCompatActivity implements EasyPermissions.P
     @BindView(R.id.recycler_view)
     RecyclerView recyclerView;
     @BindView(R.id.floating_bar)
+
+
     FloatingActionButton floatingActionButton;
     private String folderName = "newFolder";
     private HomeAdapter adapter;
@@ -47,13 +51,13 @@ public class HomeActivity extends AppCompatActivity implements EasyPermissions.P
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_gallery);
         presenter = new HomePresenter(this);
+
         ButterKnife.bind(this);
 
         if (permission()) {
-           presenter.getFileFromFolder(folderName);
+            presenter.getFileFromFolder(folderName);
         }
     }
-
     @OnClick(R.id.floating_bar)
     public void onFabClick() {
         Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
@@ -78,7 +82,7 @@ public class HomeActivity extends AppCompatActivity implements EasyPermissions.P
 
     @Override
     public void onPermissionsGranted(int requestCode, List<String> perms) {
-       presenter.getFileFromFolder(folderName);
+        presenter.getFileFromFolder(folderName);
     }
 
     @Override
@@ -102,18 +106,18 @@ public class HomeActivity extends AppCompatActivity implements EasyPermissions.P
         if (resultCode == RESULT_OK && requestCode == GALLERY_REQUEST_CODE) {
             Uri imageURI = data.getData();
             String[] projection = {MediaStore.Images.Media.DATA};
+
             Cursor cursor = getContentResolver().query(imageURI, projection, null, null, null);
+
             if (cursor.moveToFirst()) {
                 int columnIndex = cursor.getColumnIndex(projection[0]);
+
                 String picturePath = cursor.getString(columnIndex); // returns null
+                File file = new File(picturePath);
+                String lastName = file.getName();
                 cursor.close();
-                Log.i("image", picturePath);
-                //presenter.add(picturePath);
-                try {
-                    presenter.copyFile(picturePath,folderName);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+                Log.i("image", file.toString());
+                presenter.copyAndDeleteFiles(picturePath, lastName);
                 adapter.notifyDataSetChanged();
             }
         }
@@ -131,7 +135,14 @@ public class HomeActivity extends AppCompatActivity implements EasyPermissions.P
     }
 
     @Override
-    public void deleteFile() {
-        Toast.makeText(this,"delete file",Toast.LENGTH_SHORT).show();
+    public void addedFiles() {
+
+
+            Toast.makeText(this, "Successfully added file", Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void failedToaddedFiles() {
+        Toast.makeText(this, "Failed added file", Toast.LENGTH_SHORT).show();
     }
 }

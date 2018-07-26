@@ -6,5 +6,6 @@ public interface HomeView {
 
     void setImagesToAdapert(ArrayList<String> data);
 
-    void deleteFile();
+    void addedFiles();
+    void failedToaddedFiles();
 }
