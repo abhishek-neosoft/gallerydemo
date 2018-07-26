@@ -19,13 +19,15 @@ public class FileUtil {
     String folderName;
 
     public ArrayList<String> getFilesFromDir(String folderName) {
-        this.folderName=folderName;
-        file = new File(Environment.getExternalStorageDirectory() + "/" + folderName);
+        this.folderName = folderName;
+        file = new File(Environment.getExternalStorageDirectory() + "/" + folderName);//.GalleryApp
         Log.i("filename", String.valueOf(file));
         if (file.isDirectory()) {
-            File[] dirFile = file.listFiles();
-            for (int i = 0; i < dirFile.length; i++) {
-                arrImage.add(dirFile[i].toString());
+            if (file.listFiles() != null) {
+                File[] dirFile = file.listFiles();
+                for (int i = 0; i < dirFile.length; i++) {
+                    arrImage.add(dirFile[i].toString());
+                }
             }
         }
         return arrImage;
@@ -41,7 +43,7 @@ public class FileUtil {
     }
 
     public boolean copyFile(String picturePath, String lastName) {//sourcefile=moveFile
-        this.picturePath=picturePath;
+        this.picturePath = picturePath;
         InputStream in = null;
         OutputStream out = null;
 
@@ -66,14 +68,12 @@ public class FileUtil {
         }
         return false;
     }
-
-    public boolean hideCurrentFolder(){
-
-        File hideFile = new File(Environment.getExternalStorageDirectory() + "/"+ "."+folderName);
-        boolean sucess = this.file.renameTo(hideFile);
-        if (sucess){
-            return true;
+    public boolean makeDir(String folderName) {
+        File createFolder = new File(Environment.getExternalStorageDirectory(), folderName);
+        if (createFolder.exists()) {
+            return false;
+        } else {
+            return createFolder.mkdir();
         }
-        return false;
     }
 }

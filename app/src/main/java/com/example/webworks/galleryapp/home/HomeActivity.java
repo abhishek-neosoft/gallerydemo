@@ -36,9 +36,8 @@ public class HomeActivity extends AppCompatActivity implements EasyPermissions.P
     RecyclerView recyclerView;
     @BindView(R.id.floating_bar)
 
-
     FloatingActionButton floatingActionButton;
-    private String folderName = "newFolder";
+    private String folderName = ".GalleryApp";
     private HomeAdapter adapter;
     private String[] perms = {Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE};
     private HomePresenter presenter;
@@ -51,13 +50,16 @@ public class HomeActivity extends AppCompatActivity implements EasyPermissions.P
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_gallery);
         presenter = new HomePresenter(this);
-
         ButterKnife.bind(this);
 
         if (permission()) {
-            presenter.getFileFromFolder(folderName);
+            if (presenter.createFolder(folderName)) {
+                Toast.makeText(this, "Folder Created", Toast.LENGTH_SHORT).show();
+                presenter.getFileFromFolder(folderName);
+            }
         }
     }
+
     @OnClick(R.id.floating_bar)
     public void onFabClick() {
         Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
@@ -111,7 +113,6 @@ public class HomeActivity extends AppCompatActivity implements EasyPermissions.P
 
             if (cursor.moveToFirst()) {
                 int columnIndex = cursor.getColumnIndex(projection[0]);
-
                 String picturePath = cursor.getString(columnIndex); // returns null
                 File file = new File(picturePath);
                 String lastName = file.getName();
@@ -136,13 +137,15 @@ public class HomeActivity extends AppCompatActivity implements EasyPermissions.P
 
     @Override
     public void addedFiles() {
-
-
-            Toast.makeText(this, "Successfully added file", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "Successfully added file", Toast.LENGTH_SHORT).show();
     }
 
     @Override
     public void failedToaddedFiles() {
         Toast.makeText(this, "Failed added file", Toast.LENGTH_SHORT).show();
+    }
+    @Override
+    public void createFolder() {
+        Toast.makeText(this, "Folder Created", Toast.LENGTH_SHORT).show();
     }
 }
