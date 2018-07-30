@@ -1,6 +1,7 @@
 package com.example.webworks.galleryapp.home;
 
 import com.example.webworks.galleryapp.util.FileUtil;
+import java.util.ArrayList;
 
 public class HomePresenter {
 
@@ -24,7 +25,7 @@ public class HomePresenter {
         mView.setImagesToAdapert(fileUtil.getFilesFromDir(folderName));
     }
 
-    public void copyAndDeleteFiles(String picturePath, String lastName) {
+    public void copyAndDeleteFiles(ArrayList picturePath, ArrayList lastName) {
         if (fileUtil.copyFile(picturePath, lastName) && fileUtil.deletFiles()) {
             mView.addedFiles();
         } else {

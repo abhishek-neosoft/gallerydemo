@@ -1,12 +1,15 @@
 package com.example.webworks.galleryapp.home;
 
 import android.content.Context;
+import android.content.res.Resources;
+import android.graphics.Color;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.example.webworks.galleryapp.R;
@@ -46,10 +49,17 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.RecyclerViewHo
     class RecyclerViewHolder extends RecyclerView.ViewHolder {
         ImageView imageView;
 
-        RecyclerViewHolder(@NonNull View itemView) {
+        RecyclerViewHolder(@NonNull final View itemView) {
             super(itemView);
             imageView = itemView.findViewById(R.id.set_image);
-
+            imageView.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View view) {
+                    Toast.makeText(context,"selected",Toast.LENGTH_SHORT).show();
+                    imageView.setBackgroundResource(R.drawable.border_for_images);
+                    return true;
+                }
+            });
         }
     }
 }

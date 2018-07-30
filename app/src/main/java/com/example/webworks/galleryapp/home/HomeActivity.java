@@ -1,6 +1,7 @@
 package com.example.webworks.galleryapp.home;
 
 import android.Manifest;
+import android.content.ClipData;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
@@ -15,14 +16,11 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.widget.Toast;
-
 import com.example.webworks.galleryapp.R;
-
 import java.io.File;
-import java.io.IOException;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
-
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
@@ -42,8 +40,10 @@ public class HomeActivity extends AppCompatActivity implements EasyPermissions.P
     private String[] perms = {Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE};
     private HomePresenter presenter;
     private RecyclerView.LayoutManager layoutManager;
-    final static int GALLERY_REQUEST_CODE = 120;
     final static int PERMISSION_REQUEST_CODE = 123;
+    final static int SELECT_PICK_REQUEST_CODE = 111;
+    ArrayList<String> imagesEncodedList;
+    ArrayList<String> lastName;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -62,8 +62,11 @@ public class HomeActivity extends AppCompatActivity implements EasyPermissions.P
 
     @OnClick(R.id.floating_bar)
     public void onFabClick() {
-        Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-        startActivityForResult(intent, GALLERY_REQUEST_CODE);
+        Intent getImages = new Intent();
+        getImages.setType("image/*");
+        getImages.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
+        getImages.setAction(Intent.ACTION_GET_CONTENT);
+        startActivityForResult(Intent.createChooser(getImages, "Select Picture"), SELECT_PICK_REQUEST_CODE);
     }
 
     @AfterPermissionGranted(PERMISSION_REQUEST_CODE)
@@ -105,20 +108,37 @@ public class HomeActivity extends AppCompatActivity implements EasyPermissions.P
 
             }
         }
-        if (resultCode == RESULT_OK && requestCode == GALLERY_REQUEST_CODE) {
-            Uri imageURI = data.getData();
-            String[] projection = {MediaStore.Images.Media.DATA};
-
-            Cursor cursor = getContentResolver().query(imageURI, projection, null, null, null);
-
-            if (cursor.moveToFirst()) {
-                int columnIndex = cursor.getColumnIndex(projection[0]);
-                String picturePath = cursor.getString(columnIndex); // returns null
-                File file = new File(picturePath);
-                String lastName = file.getName();
-                cursor.close();
-                Log.i("image", file.toString());
-                presenter.copyAndDeleteFiles(picturePath, lastName);
+        if (requestCode == SELECT_PICK_REQUEST_CODE && resultCode == RESULT_OK
+                && null != data) {
+            imagesEncodedList=new ArrayList();
+            lastName=new ArrayList<String>();
+            String[] filePathColumn = {MediaStore.Images.Media.DATA};
+            if (data.getClipData()!=null)
+            {
+                ClipData mClipData =  data.getClipData();
+                ArrayList<Uri> arrUri = new ArrayList<Uri>();
+                for (int i = 0; i < mClipData.getItemCount(); i++)
+                {
+                    ClipData.Item item = mClipData.getItemAt(i);
+                    Uri uri = item.getUri();
+                    arrUri.add(uri);
+                    Cursor cursor = getContentResolver().query(uri, filePathColumn, null, null, null);
+                    if (cursor!=null)
+                    {
+                        cursor.moveToFirst();
+                        int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
+                        String picturePath = cursor.getString(columnIndex);
+                        File file = new File(picturePath);
+                        lastName.add(file.getName());
+                        imagesEncodedList.add(picturePath);
+                        cursor.close();
+                    }
+                    else
+                    {
+                        Toast.makeText(this,"Empty path",Toast.LENGTH_SHORT).show();
+                    }
+                }
+                presenter.copyAndDeleteFiles(imagesEncodedList,lastName);
                 adapter.notifyDataSetChanged();
             }
         }

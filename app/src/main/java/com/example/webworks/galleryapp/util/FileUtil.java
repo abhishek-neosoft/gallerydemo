@@ -15,7 +15,7 @@ public class FileUtil {
 
     public ArrayList arrImage = new ArrayList();
     File file;
-    String picturePath;
+    ArrayList picturePath;
     String folderName;
 
     public ArrayList<String> getFilesFromDir(String folderName) {
@@ -34,46 +34,54 @@ public class FileUtil {
     }
 
     public boolean deletFiles() {
-        File files = new File(picturePath);
-        if (files.exists()) {
-            files.delete();
-            return true;
+
+        boolean result = false;
+
+        for (int i = 0; i < picturePath.size(); i++) {
+            File files = new File(String.valueOf(picturePath.get(i)));
+            if (files.exists()) {
+                result = files.delete();
+            }else{
+                result=false;
+            }
         }
-        return false;
+        return result;
     }
 
-    public boolean copyFile(String picturePath, String lastName) {//sourcefile=moveFile
+    public boolean copyFile(ArrayList picturePath, ArrayList lastName) {//sourcefile=moveFile
         this.picturePath = picturePath;
         InputStream in = null;
         OutputStream out = null;
 
-        try {
-            in = new FileInputStream(picturePath);
-            out = new FileOutputStream(this.file + "/" + lastName);
-            String newPath = this.file + "/" + lastName;
-            arrImage.add(newPath);
-            byte[] buffer = new byte[1024];
-            int read;
-            while ((read = in.read(buffer)) != -1) {
-                out.write(buffer, 0, read);
-            }
-            out.flush();
-            out.close();
-            return true;
+        boolean result= false;
+        for (int i = 0; i < picturePath.size(); i++) {
 
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
+            try {
+                in = new FileInputStream(String.valueOf(picturePath.get(i)));
+                out = new FileOutputStream(this.file + "/" + lastName.get(i));
+                String newPath = this.file + "/" + lastName.get(i);
+                arrImage.add(newPath);
+                byte[] buffer = new byte[1024];
+                int read;
+                while ((read = in.read(buffer)) != -1) {
+                    out.write(buffer, 0, read);
+                }
+                out.flush();
+                out.close();
+                result= true;
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
-        return false;
+        return result;
     }
-    public boolean makeDir(String folderName) {
-        File createFolder = new File(Environment.getExternalStorageDirectory(), folderName);
-        if (createFolder.exists()) {
-            return false;
-        } else {
-            return createFolder.mkdir();
+        public boolean makeDir(String folderName){
+            File createFolder = new File(Environment.getExternalStorageDirectory(), folderName);
+            if (createFolder.exists()) {
+                return false;
+            } else {
+                return createFolder.mkdir();
+            }
         }
-    }
+
 }
