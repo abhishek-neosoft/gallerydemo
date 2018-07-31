@@ -22,14 +22,14 @@ public class HomePresenter{
     Context context;
     ArrayList imagesEncodedList= new ArrayList();;
     ArrayList picturePath;
-    ArrayList restoreImagespaths;
+    ArrayList restoreImagespaths=new ArrayList();;
 
     HomePresenter(HomeView mView, Context context) {
         fileUtil = new FileUtil();
         this.mView = mView;
         this.context = context;
         lastName=new ArrayList();
-        restoreImagespaths=new ArrayList();
+
     }
     public boolean createFolder(String folderName) {
         if (fileUtil.makeDir(folderName)) {
@@ -83,6 +83,14 @@ public class HomePresenter{
             {
                 restoreImagespaths.add(imagesEncodedList.get(i));
             }
+            if (restoreImagespaths!=null)
+            {
+                if (fileUtil.restoreBackToPlace(restoreImagespaths))
+                {
+
+                }
+            }
+
         }
         else
         {

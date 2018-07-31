@@ -19,9 +19,13 @@ public class FileUtil {
     private ArrayList picturePath;
     String folderName;
     ArrayList restoreImagespaths;
+    InputStream in = null;
+    OutputStream out = null;
+    ArrayList previousPath;
 
     public FileUtil(){
         restoreImagespaths=new ArrayList();
+        previousPath=new ArrayList();
     }
 
 
@@ -56,9 +60,6 @@ public class FileUtil {
     public boolean copyFileToApp(ArrayList picturePath, ArrayList lastName) {//sourcefile=moveFile
         File filePathName = new File(Environment.getExternalStorageDirectory() + "/" + ".GalleryApp");
         this.picturePath = picturePath;
-        InputStream in = null;
-        OutputStream out = null;
-
         boolean result = false;
         for (int i = 0; i < picturePath.size(); i++) {
 
@@ -91,18 +92,30 @@ public class FileUtil {
         }
     }
 
-    public boolean restoreDone(ArrayList adapterItemPosition,ArrayList lastUsedImagePaths){
-        restoreImagespaths.clear();
-        if (adapterItemPosition!=null && lastUsedImagePaths!=null)
+    public boolean restoreBackToPlace(ArrayList restoreImagespaths){
+
+        File restoreFile =new File(Environment.getExternalStorageDirectory() +"/"+folderName);
+        File[] restoreListFiles = restoreFile.listFiles();
+        for (int i=0; i<restoreListFiles.length;i++)
         {
-            for (int i=0;i<adapterItemPosition.size();i++)
-            {
-            restoreImagespaths.add(lastUsedImagePaths.get(i));
-            }
+            previousPath.add(restoreListFiles[i].toString());
         }
-        else
+        for (int j=0;j<restoreImagespaths.size();j++)
         {
-            return false;
+            try {
+                in = new FileInputStream(String.valueOf(previousPath.get(j)));
+                out = new FileOutputStream(String.valueOf(restoreImagespaths.get(j)));
+                byte[] buffer = new byte[1024];
+                int read;
+                while ((read = in.read(buffer)) != -1) {
+                    out.write(buffer, 0, read);
+                }
+                out.flush();
+                out.close();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
         }
     return true;
     }
