@@ -8,4 +8,8 @@ public interface HomeView {
     void addedFiles();
     void failedToaddedFiles();
     void createFolder();
+
+    void restoreSuccessfully();
+
+    void restoreUnSuccessfully();
 }

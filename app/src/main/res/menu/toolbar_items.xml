@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+
+    <item
+        android:title="restore to gallery"
+        android:id="@+id/restore"
+        android:orderInCategory="100" />
+
+    <item
+        android:id="@+id/edit"
+        android:title="edit"
+        android:orderInCategory="100"
+        app:showAsAction="never" />
+    <item
+        android:title="logout"
+        android:id="@+id/logout"
+        android:orderInCategory="100"
+        app:showAsAction="never" />
+
+</menu>
