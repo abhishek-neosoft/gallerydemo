@@ -6,31 +6,28 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.provider.MediaStore;
-import android.util.Log;
-
 import com.example.webworks.galleryapp.util.FileUtil;
-import java.io.File;
 import java.util.ArrayList;
-import java.util.EnumMap;
 
-public class HomePresenter{
+public class HomePresenter {
 
     private FileUtil fileUtil;
     private HomeView mView;
-    ArrayList arrUri;
     ArrayList lastName;
     Context context;
-    ArrayList imagesEncodedList= new ArrayList();;
-    ArrayList picturePath;
-    ArrayList restoreImagespaths=new ArrayList();;
+    ArrayList imagesEncodedList = new ArrayList();
+    ArrayList restoreImagespaths = new ArrayList();
+    ArrayList oldPath;
 
     HomePresenter(HomeView mView, Context context) {
         fileUtil = new FileUtil();
         this.mView = mView;
         this.context = context;
-        lastName=new ArrayList();
+        lastName = new ArrayList();
+        oldPath = new ArrayList();
 
     }
+
     public boolean createFolder(String folderName) {
         if (fileUtil.makeDir(folderName)) {
             mView.createFolder();
@@ -42,60 +39,51 @@ public class HomePresenter{
         mView.setImagesToAdapert(fileUtil.getFilesFromDir(folderName));
     }
 
-    private void copyAndDeleteFiles(ArrayList picturePath, ArrayList lastName) {
-        this.picturePath=picturePath;
-        if (fileUtil.copyFileToApp(picturePath, lastName) && fileUtil.deletFiles()) {
+    private void copyAndDelete(ArrayList oldPath, String newPath) {
+
+        if (fileUtil.copyFile(oldPath, newPath) && fileUtil.deleteImages()) {
             mView.addedFiles();
         } else {
             mView.failedToaddedFiles();
         }
     }
-    public void onResultDataAndRecieveData(Intent data) {
+
+    public void onResultDataAndRecieveDataFromGallery(Intent data, String newPath) {
+
         String[] filePathColumn = {MediaStore.Images.Media.DATA};
         if (data.getClipData() != null) {
             ClipData mClipData = data.getClipData();
-            arrUri = new ArrayList<Uri>();
             for (int i = 0; i < mClipData.getItemCount(); i++) {
                 ClipData.Item item = mClipData.getItemAt(i);
                 Uri uri = item.getUri();
-                arrUri.add(uri);
                 Cursor cursor = context.getContentResolver().query(uri, filePathColumn, null, null, null);
                 if (cursor != null) {
                     cursor.moveToFirst();
                     int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
                     String picturePath = cursor.getString(columnIndex);
-                    File file = new File(picturePath);
-                    lastName.add(file.getName());
-                    imagesEncodedList.add(picturePath);
+                    oldPath.add(picturePath);
                     cursor.close();
                 }
             }
-            copyAndDeleteFiles(imagesEncodedList,lastName);
+            copyAndDelete(oldPath, newPath);
         }
-        Log.i("arraysize", String.valueOf(imagesEncodedList.size()));
     }
-    public void restoreData(ArrayList adapterItemPosition){
+
+    public void restoreData(ArrayList adapterItemPosition) {
         restoreImagespaths.clear();
 
-        if (adapterItemPosition!=null && imagesEncodedList!=null)
-        {
-            for (int i=0;i<adapterItemPosition.size();i++)
-            {
+        if (adapterItemPosition != null && imagesEncodedList != null) {
+            for (int i = 0; i < adapterItemPosition.size(); i++) {
                 restoreImagespaths.add(imagesEncodedList.get(i));
             }
-            if (restoreImagespaths!=null)
-            {
-                if (fileUtil.restoreBackToPlace(restoreImagespaths))
-                {
+            if (restoreImagespaths != null) {
+                if (fileUtil.restoreBackToPlace(restoreImagespaths)) {
 
                 }
             }
 
-        }
-        else
-        {
+        } else {
             mView.restoreUnSuccessfully();
         }
     }
-
 }

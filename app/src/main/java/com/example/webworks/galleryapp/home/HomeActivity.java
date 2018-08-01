@@ -3,6 +3,7 @@ package com.example.webworks.galleryapp.home;
 import android.Manifest;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
@@ -21,6 +22,7 @@ import android.widget.Toast;
 
 import com.example.webworks.galleryapp.R;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -135,7 +137,7 @@ public class HomeActivity extends AppCompatActivity implements EasyPermissions.P
         }
         if (requestCode == SELECT_PICK_REQUEST_CODE && resultCode == RESULT_OK
                 && null != data) {
-            presenter.onResultDataAndRecieveData(data);
+            presenter.onResultDataAndRecieveDataFromGallery(data,String.valueOf(new File(Environment.getExternalStorageDirectory() + "/"+folderName)));
             adapter.notifyDataSetChanged();
         }
     }
@@ -198,11 +200,11 @@ public class HomeActivity extends AppCompatActivity implements EasyPermissions.P
     }
 
     void handleSendMultipleImages(Intent intent) {
-        presenter.onResultDataAndRecieveData(intent);
+        presenter.onResultDataAndRecieveDataFromGallery(intent,String.valueOf(new File(Environment.getExternalStorageDirectory() + "/"+folderName)));
     }
 
     void handleSendImage(Intent intent) {
-        presenter.onResultDataAndRecieveData(intent);
+        presenter.onResultDataAndRecieveDataFromGallery(intent,String.valueOf(new File(Environment.getExternalStorageDirectory() + "/"+folderName)));
     }
 
     @Override
@@ -231,6 +233,4 @@ public class HomeActivity extends AppCompatActivity implements EasyPermissions.P
     public void selectedItemPosition(ArrayList itemPosition) {
         this.adapterItemPosition = itemPosition;
     }
-
-
 }

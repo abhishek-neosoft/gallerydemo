@@ -16,12 +16,12 @@ public class FileUtil {
 
     private ArrayList arrImage = new ArrayList();
     private File file;
-    private ArrayList picturePath;
     String folderName;
     ArrayList restoreImagespaths;
     InputStream in = null;
     OutputStream out = null;
     ArrayList previousPath;
+    ArrayList oldPath;
 
     public FileUtil(){
         restoreImagespaths=new ArrayList();
@@ -43,46 +43,6 @@ public class FileUtil {
         }
         return arrImage;
     }
-    public boolean deletFiles() {
-        boolean result = false;
-
-        for (int i = 0; i < picturePath.size(); i++) {
-            File files = new File(String.valueOf(picturePath.get(i)));
-            if (files.exists()) {
-                result = files.delete();
-            } else {
-                result = false;
-            }
-        }
-        return result;
-    }
-
-    public boolean copyFileToApp(ArrayList picturePath, ArrayList lastName) {//sourcefile=moveFile
-        File filePathName = new File(Environment.getExternalStorageDirectory() + "/" + ".GalleryApp");
-        this.picturePath = picturePath;
-        boolean result = false;
-        for (int i = 0; i < picturePath.size(); i++) {
-
-            try {
-                in = new FileInputStream(String.valueOf(picturePath.get(i)));
-                out = new FileOutputStream(filePathName + "/" + lastName.get(i));
-                String newPath = this.file + "/" + lastName.get(i);
-                arrImage.add(newPath);
-                byte[] buffer = new byte[1024];
-                int read;
-                while ((read = in.read(buffer)) != -1) {
-                    out.write(buffer, 0, read);
-                }
-                out.flush();
-                out.close();
-                result = true;
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-        return result;
-    }
-
     public boolean makeDir(String folderName) {
         File createFolder = new File(Environment.getExternalStorageDirectory(), folderName);
         if (createFolder.exists()) {
@@ -115,8 +75,54 @@ public class FileUtil {
             } catch (Exception e) {
                 e.printStackTrace();
             }
-
         }
     return true;
+    }
+
+    // oldPath = to read as input -- newPath - to copy with oldPath lastname
+    //find lastname of oldPath
+    //newPath == your folder name path
+
+    public boolean copyFile(ArrayList oldPath , String newPath){
+        this.oldPath=oldPath;
+        boolean result = false;
+        ArrayList lastName =new ArrayList();
+        for (int i=0;i<oldPath.size();i++)
+        {
+            File file = new File(String.valueOf(oldPath.get(i)));
+            lastName.add(file.getName());
+
+            try {
+                in=new FileInputStream(String.valueOf(oldPath.get(i)));
+                out=new FileOutputStream(newPath +"/"+lastName.get(i));
+                String pathToAdd = this.file + "/" + lastName.get(i);
+                arrImage.add(pathToAdd);
+                byte[] buffer = new byte[1024];
+                int read;
+                while ((read = in.read(buffer)) != -1) {
+                    out.write(buffer, 0, read);
+                }
+                out.flush();
+                out.close();
+                result = true;
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        return result;
+    }
+
+    public boolean deleteImages()
+    {
+        boolean result = false;
+        for (int i = 0; i < oldPath.size(); i++) {
+            File files = new File(String.valueOf(oldPath.get(i)));
+            if (files.exists()) {
+                result = files.delete();
+            } else {
+                result = false;
+            }
+        }
+        return result;
     }
 }

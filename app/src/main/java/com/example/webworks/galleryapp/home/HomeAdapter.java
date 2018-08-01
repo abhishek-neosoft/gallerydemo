@@ -23,7 +23,6 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.RecyclerViewHo
     private SparseBooleanArray selectedItems;
     OnRecyclerViewItemPosition itemPosition;
 
-
     HomeAdapter(Context context, ArrayList images) {
         this.context = context;
         this.images = images;
