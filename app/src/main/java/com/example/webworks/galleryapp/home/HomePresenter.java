@@ -5,8 +5,14 @@ import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Environment;
 import android.provider.MediaStore;
+import android.util.Log;
+
+import com.example.webworks.galleryapp.database.SaveGalleryPath;
 import com.example.webworks.galleryapp.util.FileUtil;
+
+import java.io.File;
 import java.util.ArrayList;
 
 public class HomePresenter {
@@ -18,6 +24,7 @@ public class HomePresenter {
     ArrayList imagesEncodedList = new ArrayList();
     ArrayList restoreImagespaths = new ArrayList();
     ArrayList oldPath;
+    SaveGalleryPath saveGalleryPath;
 
     HomePresenter(HomeView mView, Context context) {
         fileUtil = new FileUtil();
@@ -25,6 +32,7 @@ public class HomePresenter {
         this.context = context;
         lastName = new ArrayList();
         oldPath = new ArrayList();
+        saveGalleryPath=new SaveGalleryPath(context);
 
     }
 
@@ -65,25 +73,57 @@ public class HomePresenter {
                     cursor.close();
                 }
             }
+            for (int i=0;i<oldPath.size();i++)
+            {
+                saveGalleryPath.insertData(oldPath.get(i).toString());
+            }
+
             copyAndDelete(oldPath, newPath);
         }
     }
 
-    public void restoreData(ArrayList adapterItemPosition) {
-        restoreImagespaths.clear();
+    public void restoreData(ArrayList adapterItemPosition) {   //5,6,7
 
-        if (adapterItemPosition != null && imagesEncodedList != null) {
-            for (int i = 0; i < adapterItemPosition.size(); i++) {
-                restoreImagespaths.add(imagesEncodedList.get(i));
+        ArrayList restoreImagesNewpaths = new ArrayList();
+        for (int i=0;i<adapterItemPosition.size();i++) {
+            Cursor result = saveGalleryPath.fetchData((Integer) adapterItemPosition.get(i));
+            if (result.getCount() == 0) {
+                return;
+            } else {
+                StringBuffer buffer = new StringBuffer();
+                do {
+                    buffer.append(result.getString(1));
+                    Log.i("datafecth", buffer.toString());
+                } while (result.moveToNext());
+                restoreImagesNewpaths.add(buffer);
+                Log.i("restoreImagesPath", String.valueOf(restoreImagesNewpaths));
+
+                //  Log.i("parrentFile",file.getParent());
             }
-            if (restoreImagespaths != null) {
-                if (fileUtil.restoreBackToPlace(restoreImagespaths)) {
+        }
 
+        if (fileUtil.restoreBackToPlace(restoreImagesNewpaths)&& fileUtil.deleteFileAfetrResoter(restoreImagesNewpaths))
+        {
+            for (int i=0;i<adapterItemPosition.size();i++)
+            {
+                int deleteRow=saveGalleryPath.deletePathFromDB((Integer) adapterItemPosition.get(i));
+                if (deleteRow > 0)
+                {
+                    //delete record
+                }
+                else
+                {
+                    //not deleted
                 }
             }
 
-        } else {
+            mView.restoreSuccessfully();
+        }
+        else
+        {
             mView.restoreUnSuccessfully();
         }
+
+
     }
 }
