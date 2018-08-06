@@ -214,11 +214,13 @@ public class HomeActivity extends AppCompatActivity implements EasyPermissions.P
             case R.id.restore:
 
                 if (adapterItemPosition.size() != 0) {
-                    presenter.restoreData(adapterItemPosition);
+                    presenter.fetchImagesWithPosition(adapterItemPosition,folderName);
+                    adapterItemPosition.clear();
                     adapter.notifyDataSetChanged();
                 } else {
                     Toast.makeText(this, "Add images", Toast.LENGTH_SHORT).show();
                 }
+
                 break;
             case R.id.edit:
                 msg = "edit";
