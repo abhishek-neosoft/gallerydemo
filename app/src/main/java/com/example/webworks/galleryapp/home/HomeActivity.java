@@ -33,7 +33,7 @@ import pub.devrel.easypermissions.AfterPermissionGranted;
 import pub.devrel.easypermissions.AppSettingsDialog;
 import pub.devrel.easypermissions.EasyPermissions;
 
-public class HomeActivity extends AppCompatActivity implements EasyPermissions.PermissionCallbacks, HomeView, HomeAdapter.OnRecyclerViewItemPosition {
+public class HomeActivity extends AppCompatActivity implements EasyPermissions.PermissionCallbacks, HomeView, HomeAdapterDemo.OnRecyclerViewItemPosition {
 
     @BindView(R.id.recycler_view)
     RecyclerView recyclerView;
@@ -47,6 +47,7 @@ public class HomeActivity extends AppCompatActivity implements EasyPermissions.P
 
     private String folderName = ".GalleryApp";//GalleryApp
     private HomeAdapter adapter;
+    private HomeAdapterDemo adapterDemo;
     private String[] perms = {Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE};
     private HomePresenter presenter;
     private RecyclerView.LayoutManager layoutManager;
@@ -138,7 +139,7 @@ public class HomeActivity extends AppCompatActivity implements EasyPermissions.P
         if (requestCode == SELECT_PICK_REQUEST_CODE && resultCode == RESULT_OK
                 && null != data) {
             presenter.onResultDataAndRecieveDataFromGallery(data,String.valueOf(new File(Environment.getExternalStorageDirectory() + "/"+folderName)));
-            adapter.notifyDataSetChanged();
+            adapterDemo.notifyDataSetChanged();
         }
     }
 
@@ -149,8 +150,9 @@ public class HomeActivity extends AppCompatActivity implements EasyPermissions.P
         layoutManager = new GridLayoutManager(this, 2);
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(layoutManager);
-        adapter = new HomeAdapter(this, data);
-        recyclerView.setAdapter(adapter);
+        //adapter = new HomeAdapter(this, data);
+        adapterDemo=new HomeAdapterDemo(this,data);
+        recyclerView.setAdapter(adapterDemo);
     }
 
     @Override
@@ -213,10 +215,14 @@ public class HomeActivity extends AppCompatActivity implements EasyPermissions.P
         switch (item.getItemId()) {
             case R.id.restore:
 
-                if (adapterItemPosition.size() != 0) {
-                    presenter.fetchImagesWithPosition(adapterItemPosition,folderName);
-                    adapterItemPosition.clear();
-                    adapter.notifyDataSetChanged();
+                if (adapterDemo.getImages().size() != 0) {
+                    //presenter.fetchImagesWithPosition(adapterItemPosition,folderName);
+
+
+                    presenter.fetchImagesWithPos(adapterDemo.getImages());
+                    adapterDemo.clearSelectedList();
+                    //adapter.notifyDataSetChanged();
+                    adapterDemo.notifyDataSetChanged();
                 } else {
                     Toast.makeText(this, "Add images", Toast.LENGTH_SHORT).show();
                 }
@@ -235,5 +241,6 @@ public class HomeActivity extends AppCompatActivity implements EasyPermissions.P
     @Override
     public void selectedItemPosition(ArrayList itemPosition) {
         this.adapterItemPosition = itemPosition;
+
     }
 }

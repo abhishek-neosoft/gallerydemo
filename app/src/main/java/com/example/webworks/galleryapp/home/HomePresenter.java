@@ -81,10 +81,11 @@ public class HomePresenter {
             }
             copyAndDelete(galleryPath, newPath);
             galleryPath.clear();
+            getGalleryPathLastName.clear();
         }
     }
 
-    public void fetchImagesWithPosition(ArrayList adapterItemPosition, String folderName) {
+    /*public void fetchImagesWithPosition(ArrayList adapterItemPosition, String folderName) {
 
         File file = new File(Environment.getExternalStorageDirectory() + "/" + folderName);
         File[] fileArr = file.listFiles();
@@ -125,23 +126,42 @@ public class HomePresenter {
         else {
             mView.restoreUnSuccessfully();
         }
+    }*/
 
+    public void fetchImagesWithPos(ArrayList adapterImages)
+    {
+        ArrayList previousPath =new ArrayList();
+        ArrayList lastName =new ArrayList();
+        for (int i=0;i<adapterImages.size();i++)
+        {
+            File gettingLastName =new File(adapterImages.get(i).toString());
+            lastName.add(gettingLastName.getName());
 
-
-        /*if (cursor.getCount() == 0) {
-            return;
-        } else {
-            StringBuffer buffer = new StringBuffer();
-            do{
-                if (cursor.moveToNext())
-                buffer.append(cursor.getString(cursor.getColumnIndex("GALLERY_PATH_LOCATION")));
-            }while(cursor.moveToNext());
-
-            Log.i("bufferr",buffer.toString());
-
-        }*/
+            Cursor cursor = saveGalleryPath.fetchPathWithLastName(lastName.get(i).toString());
+            if (cursor.moveToFirst())
+            {
+                StringBuffer buffer = new StringBuffer();
+                do {
+                    buffer.append(cursor.getString(cursor.getColumnIndex("GALLERY_PATH_LOCATION")));
+                }while(cursor.moveToNext());
+                previousPath.add(buffer);
+            }
+        }
+        if (fileUtil.restoreBackToPlace(adapterImages,previousPath) && fileUtil.deleteFileAfetrResoter(adapterImages))
+        {
+            previousPath.clear();
+            adapterImages.clear();
+            for (int i=0;i<lastName.size();i++)
+            {
+                saveGalleryPath.deleteData(lastName.get(i).toString());
+                mView.restoreSuccessfully();
+            }
+            lastName.clear();
+        }
+        else {
+            mView.restoreUnSuccessfully();
+        }
     }
-
 }
 
 

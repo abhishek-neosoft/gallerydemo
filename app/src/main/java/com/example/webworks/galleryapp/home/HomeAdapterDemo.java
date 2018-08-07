@@ -14,33 +14,35 @@ import com.example.webworks.galleryapp.R;
 
 import java.util.ArrayList;
 
-public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.RecyclerViewHolder> {
+public class HomeAdapterDemo extends RecyclerView.Adapter<HomeAdapterDemo.RecyclerViewHolder> {
 
     private Context context;
     private ArrayList images;
     private boolean longClickTouch=false;
-    private ArrayList items;
     private SparseBooleanArray selectedItems;
     OnRecyclerViewItemPosition itemPosition;
+    private ArrayList items;
+    ArrayList selectedImages;
 
-    HomeAdapter(Context context, ArrayList images) {
+    HomeAdapterDemo(Context context, ArrayList images) {
         this.context = context;
         this.images = images;
         selectedItems=new SparseBooleanArray();
         this.itemPosition = (OnRecyclerViewItemPosition) context;
+        selectedImages=new ArrayList();
     }
+
     @NonNull
     @Override
     public RecyclerViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
-        LayoutInflater inflater= (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        View row=inflater.inflate(R.layout.imagepath,viewGroup,false);
-        RecyclerViewHolder holder=new RecyclerViewHolder(row);
+        LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        View row = inflater.inflate(R.layout.imagepath, viewGroup, false);
+        RecyclerViewHolder holder = new RecyclerViewHolder(row);
         return holder;
     }
 
     @Override
     public void onBindViewHolder(@NonNull RecyclerViewHolder recyclerViewHolder, int i) {
-
         Glide.with(context).load(images.get(i)).into(recyclerViewHolder.imageView);
         if (isSelected(i))
         {
@@ -61,46 +63,53 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.RecyclerViewHo
         return images.size();
     }
 
-    class RecyclerViewHolder extends RecyclerView.ViewHolder{
+    class RecyclerViewHolder extends RecyclerView.ViewHolder {
         ImageView imageView;
 
-        RecyclerViewHolder(@NonNull final View itemView) {
+        public RecyclerViewHolder(@NonNull View itemView) {
             super(itemView);
             imageView = itemView.findViewById(R.id.set_image);
-            imageView.setOnLongClickListener(new View.OnLongClickListener() {
-                @Override
-                public boolean onLongClick(View view) {
-                    if (longClickTouch)
-                    {
-                        return false;
-                    }
-                    else
-                    {
-                        toggleSelection(getAdapterPosition());
-                        longClickTouch=true;
-                    }
-                    return true;
-                }
-            });
-            imageView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    if (longClickTouch)
-                    {
-                        toggleSelection(getAdapterPosition());
-                    }
-                }
-            });
+           imageView.setOnLongClickListener(new View.OnLongClickListener() {
+               @Override
+               public boolean onLongClick(View view) {
+                   if (longClickTouch)
+                   {
+                       return false;
+                   }else
+                   {
+                       //imageView.setBackgroundResource(R.drawable.border_for_images);
+                       toggleSelection(getAdapterPosition());
+                       longClickTouch=true;
+                   }
+                   return true;
+               }
+           });
+           imageView.setOnClickListener(new View.OnClickListener() {
+               @Override
+               public void onClick(View view) {
+                   if (longClickTouch)
+                   {
+                       toggleSelection(getAdapterPosition());
+                   }
+               }
+           });
         }
     }
     private void toggleSelection(int pos) {
         if (selectedItems.get(pos, false)) {
             selectedItems.delete(pos);
+            selectedImages.remove(pos);
         }
         else {
             selectedItems.put(pos, true);
+            selectedImages.add(images.get(pos));
         }
         notifyItemChanged(pos);
+    }
+
+    public void clearSelectedList(){
+        selectedImages.clear();
+        selectedItems.clear();
     }
 
     private boolean isSelected(int position){
@@ -111,12 +120,18 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.RecyclerViewHo
         items = new ArrayList(selectedItems.size());
         for (int i=0;i<selectedItems.size();i++)
         {
-           items.add(selectedItems.keyAt(i));
+            items.add(selectedItems.keyAt(i));
         }
-        itemPosition.selectedItemPosition(items);
+
         return items;
+
+    }
+
+    public ArrayList getImages(){
+        return selectedImages;
     }
     public interface OnRecyclerViewItemPosition{
-         void selectedItemPosition(ArrayList items);
+        void selectedItemPosition(ArrayList getSelectedImages);
+
     }
 }
